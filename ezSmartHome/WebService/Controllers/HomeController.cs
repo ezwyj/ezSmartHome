@@ -15,9 +15,9 @@ namespace WebService.Controllers
 
             string json = Request.InputStream.ToString();
             runLog.log(json);
-            var obj  = Newtonsoft.Json.JsonConvert.DeserializeObject<DingDongRequest>(json);
-            DingDongResponse r = new DingDongResponse();
-            return new JsonResult { Data = r  };
+            //var obj  = Newtonsoft.Json.JsonConvert.DeserializeObject<DingDongRequest>(json);
+            //DingDongResponse r = new DingDongResponse();
+            return new JsonResult { Data = "OK"  };
         }
     }
 }
