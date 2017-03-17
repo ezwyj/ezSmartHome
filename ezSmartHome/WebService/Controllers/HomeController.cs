@@ -42,9 +42,15 @@ namespace WebService.Controllers
             return new JsonResult { Data = "OK"  };
         }
 
-        public ActionResult UserProfile()
+        public ActionResult UserProfile(string state)
         {
-            runLog.log("User" + GetJsonString());
+            var req = Newtonsoft.Json.JsonConvert.DeserializeObject<StateEntity>(state);
+
+            return View();
+        }
+        public ActionResult Success()
+        {
+
             return View();
         }
 
@@ -53,11 +59,21 @@ namespace WebService.Controllers
         {
             return View();
         }
-        [HttpPost]
-        public JsonResult OpenService()
+
+        public ActionResult OpenService(string state)
         {
-            runLog.log("OPen" + GetJsonString());
-            return new JsonResult { Data = "OK" };
+            var req = Newtonsoft.Json.JsonConvert.DeserializeObject<StateEntity>(state);
+            runLog.log("open :"+state);
+        
+            if (req.operation == "open")
+            {
+
+            }
+            else
+            {
+
+            }
+            return Content("0");
         }
     }
 }
