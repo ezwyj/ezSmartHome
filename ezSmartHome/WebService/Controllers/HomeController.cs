@@ -10,12 +10,8 @@ namespace WebService.Controllers
 {
     public class HomeController : Controller
     {
-        static FileLog runLog = new FileLog(AppDomain.CurrentDomain.BaseDirectory + @"/log/runLog.txt");
-        [HttpPost]
-        public JsonResult Post( )
+        private string GetJsonString()
         {
-
-             Request.InputStream.ToString();
             string postStr = string.Empty;
             Stream inputStream = Request.InputStream;
             int contentLength = Request.ContentLength;
@@ -30,11 +26,38 @@ namespace WebService.Controllers
                 UTF8Encoding encoding = new UTF8Encoding();
                 postStr = encoding.GetString(buffer);
             }
+            return postStr;
+        }
+        static FileLog runLog = new FileLog(AppDomain.CurrentDomain.BaseDirectory + @"/log/runLog.txt");
+        [HttpPost]
+        public JsonResult Post( )
+        {
+            runLog.log(GetJsonString());
+             
             
-            runLog.log(postStr);
+            
+            
             //var obj  = Newtonsoft.Json.JsonConvert.DeserializeObject<DingDongRequest>(json);
             //DingDongResponse r = new DingDongResponse();
             return new JsonResult { Data = "OK"  };
+        }
+
+        public ActionResult UserProfile()
+        {
+            runLog.log("User" + GetJsonString());
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult UserProfile(FormCollection collection)
+        {
+            return View();
+        }
+        [HttpPost]
+        public JsonResult OpenService()
+        {
+            runLog.log("OPen" + GetJsonString());
+            return new JsonResult { Data = "OK" };
         }
     }
 }
