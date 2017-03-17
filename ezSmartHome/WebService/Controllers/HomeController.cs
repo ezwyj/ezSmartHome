@@ -53,6 +53,37 @@ namespace WebService.Controllers
 
             return View();
         }
+        public static string AESDecrypt(String Data, String Key)
+        {
+            Byte[] encryptedBytes = Convert.FromBase64String(Data);
+            Byte[] bKey = new Byte[32];
+            Array.Copy(Encoding.UTF8.GetBytes(Key.PadRight(bKey.Length)), bKey, bKey.Length);
+
+            MemoryStream mStream = new MemoryStream(encryptedBytes);
+            //mStream.Write( encryptedBytes, 0, encryptedBytes.Length );  
+            //mStream.Seek( 0, SeekOrigin.Begin );  
+            RijndaelManaged aes = new RijndaelManaged();
+            aes.Mode = CipherMode.ECB;
+            aes.Padding = PaddingMode.PKCS7;
+            aes.KeySize = 128;
+            aes.Key = bKey;
+            //aes.IV = _iV;  
+            CryptoStream cryptoStream = new CryptoStream(mStream, aes.CreateDecryptor(), CryptoStreamMode.Read);
+            try
+            {
+                byte[] tmp = new byte[encryptedBytes.Length + 32];
+                int len = cryptoStream.Read(tmp, 0, encryptedBytes.Length + 32);
+                byte[] ret = new byte[len];
+                Array.Copy(tmp, 0, ret, 0, len);
+                return Encoding.UTF8.GetString(ret);
+            }
+            finally
+            {
+                cryptoStream.Close();
+                mStream.Close();
+                aes.Clear();
+            }
+        }
 
         [HttpPost]
         public ActionResult UserProfile(FormCollection collection)
@@ -62,6 +93,12 @@ namespace WebService.Controllers
 
         public ActionResult OpenService(string state)
         {
+
+            //Base64.encode(Aes.encrypt(AesKey,{ "userid":"用户标识","operation":"open/close","timestamp":"时间戳，毫秒","appid":"应用的APPID"}))
+            byte[] bytes = Convert.FromBase64String(state);
+            string unSec = Encoding.UTF8.GetString(bytes);
+
+
             var req = Newtonsoft.Json.JsonConvert.DeserializeObject<StateEntity>(state);
             runLog.log("open :"+state);
         
