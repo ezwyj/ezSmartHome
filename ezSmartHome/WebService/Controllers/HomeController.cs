@@ -53,37 +53,7 @@ namespace WebService.Controllers
 
             return View();
         }
-        public static string AESDecrypt(String Data, String Key)
-        {
-            Byte[] encryptedBytes = Convert.FromBase64String(Data);
-            Byte[] bKey = new Byte[32];
-            Array.Copy(Encoding.UTF8.GetBytes(Key.PadRight(bKey.Length)), bKey, bKey.Length);
-
-            MemoryStream mStream = new MemoryStream(encryptedBytes);
-            //mStream.Write( encryptedBytes, 0, encryptedBytes.Length );  
-            //mStream.Seek( 0, SeekOrigin.Begin );  
-            RijndaelManaged aes = new RijndaelManaged();
-            aes.Mode = CipherMode.ECB;
-            aes.Padding = PaddingMode.PKCS7;
-            aes.KeySize = 128;
-            aes.Key = bKey;
-            //aes.IV = _iV;  
-            CryptoStream cryptoStream = new CryptoStream(mStream, aes.CreateDecryptor(), CryptoStreamMode.Read);
-            try
-            {
-                byte[] tmp = new byte[encryptedBytes.Length + 32];
-                int len = cryptoStream.Read(tmp, 0, encryptedBytes.Length + 32);
-                byte[] ret = new byte[len];
-                Array.Copy(tmp, 0, ret, 0, len);
-                return Encoding.UTF8.GetString(ret);
-            }
-            finally
-            {
-                cryptoStream.Close();
-                mStream.Close();
-                aes.Clear();
-            }
-        }
+        
 
         [HttpPost]
         public ActionResult UserProfile(FormCollection collection)
@@ -91,25 +61,44 @@ namespace WebService.Controllers
             return View();
         }
 
-        public ActionResult OpenService(string state)
+        public ContentResult OpenService(string state)
         {
+            /*
+             * 
+             * 	在用户申请开通应用时，会在上述配置的用户登录认证地址中，通过“state”参数返回用户userid。
+                <br/>state 参数格式为json：{"userid":"用户标识","operation":"oauth","timestamp":"时间戳，毫秒","appid":"应用的APPID"}
+                                        
+                <br/>对state参数的加密过程
+                <br/>1.使用应用配置的AesKey秘钥进行state 参数的加密 state_mi = AES.encrypt(state_ming,AesKey)
+                <br/>2.将加密后的数据进行Base64编码 state_base64 = Base64.encode(state_mi)
+                <br/>3.将Base64编码后的数据进行URL编码 state = UrlEncoder.encode(state_base64,"UTF-8");
+                                       
+                <br/>应用对state参数的解密过程
+                <br/>1.应用将接收到的数据进行Url解码，state_base64 = UrlDecoder.decode(state,"UTF-8")
+                <br/>2.应用将解码后到的数据进行Base64解码 state_mi = Base64.decode(state_base64)
+                <br/>3.应用使用应用配置的AesKey秘钥进行数据的解密 state = AES.decrypt(state_mi,AesKey)
+                                       */
+            runLog.log("state:"+state);
+            string state_base64 = HttpUtility.UrlDecode(state,Encoding.UTF8);
+            runLog.log("base64:"+state_base64);
 
-            //Base64.encode(Aes.encrypt(AesKey,{ "userid":"用户标识","operation":"open/close","timestamp":"时间戳，毫秒","appid":"应用的APPID"}))
-            byte[] bytes = Convert.FromBase64String(state);
-            string unSec = Encoding.UTF8.GetString(bytes);
+            byte[] bState = Convert.FromBase64String(state_base64.Replace(" ", "+"));
+            string state_mi =System.Text.UTF8Encoding.Default.GetString(bState);
+           runLog.log("de base64:" + state_mi);
+            string state_nomi = AES.AESDecrypt(state_mi);
+            runLog.log("state:" + state);
 
-
-            var req = Newtonsoft.Json.JsonConvert.DeserializeObject<StateEntity>(state);
-            runLog.log("open :"+state);
+            var req = Newtonsoft.Json.JsonConvert.DeserializeObject<StateEntity>(state_nomi);
+            
         
-            if (req.operation == "open")
-            {
+            //if (req.operation == "open")
+            //{
 
-            }
-            else
-            {
+            //}
+            //else
+            //{
 
-            }
+            //}
             return Content("0");
         }
     }
