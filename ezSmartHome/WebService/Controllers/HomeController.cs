@@ -80,17 +80,17 @@ namespace WebService.Controllers
                                        */
             runLog.log("state:"+state);
             string state_base64 = HttpUtility.UrlDecode(state,Encoding.UTF8);
-            runLog.log("base64:"+state_base64);
+            state_base64 = state_base64.Replace(" ", "+");
+            runLog.log("state_base64:" + state);
+            byte[] bState = Convert.FromBase64String(state);
+            string state_mi= UTF8Encoding.UTF8.GetString(bState);
+            runLog.log("MI_" + state_mi);
+            // string state_nomi = AES.AESDecrypt(state_mi);
 
-            byte[] bState = Convert.FromBase64String(state_base64.Replace(" ", "+"));
-            string state_mi =System.Text.UTF8Encoding.Default.GetString(bState);
-           runLog.log("de base64:" + state_mi);
-            string state_nomi = AES.AESDecrypt(state_mi);
-            runLog.log("state:" + state);
 
-            var req = Newtonsoft.Json.JsonConvert.DeserializeObject<StateEntity>(state_nomi);
-            
-        
+            // var req = Newtonsoft.Json.JsonConvert.DeserializeObject<StateEntity>(state_nomi);
+
+
             //if (req.operation == "open")
             //{
 
