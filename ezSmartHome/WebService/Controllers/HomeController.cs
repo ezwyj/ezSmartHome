@@ -1,7 +1,9 @@
-﻿using System;
+﻿using PetaPoco;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Web;
 using System.Web.Mvc;
@@ -44,7 +46,9 @@ namespace WebService.Controllers
 
         public ActionResult UserProfile(string state)
         {
-            var req = Newtonsoft.Json.JsonConvert.DeserializeObject<StateEntity>(state);
+            state = state.Replace(" ", "+");
+            var json = Decrypt(state, _key);
+            var entity = Newtonsoft.Json.JsonConvert.DeserializeObject<DingDongOpenRequest>(json);
 
             return View();
         }
@@ -58,48 +62,56 @@ namespace WebService.Controllers
         [HttpPost]
         public ActionResult UserProfile(FormCollection collection)
         {
+   
+            
             return View();
         }
+        private static byte[] _key = Convert.FromBase64String(@"uw4FGrtauRGbh2ukh2ZFAA ==");
+        private static string Decrypt(string toDecrypt, byte[] key)
+        {
+            byte[] keyArray = key;
+            byte[] inputBuffer = Convert.FromBase64String(toDecrypt);
+            RijndaelManaged rDel = new RijndaelManaged();
+            rDel.Key = keyArray;
+            rDel.Mode = CipherMode.ECB;
+            rDel.Padding = PaddingMode.PKCS7;
+            ICryptoTransform cTransform = rDel.CreateDecryptor();
 
+            byte[] resultArray = cTransform.TransformFinalBlock(inputBuffer, 0, inputBuffer.Length);
+
+            return Encoding.UTF8.GetString(resultArray);
+        }
         public ContentResult OpenService(string state)
         {
-            /*
-             * 
-             * 	在用户申请开通应用时，会在上述配置的用户登录认证地址中，通过“state”参数返回用户userid。
-                <br/>state 参数格式为json：{"userid":"用户标识","operation":"oauth","timestamp":"时间戳，毫秒","appid":"应用的APPID"}
-                                        
-                <br/>对state参数的加密过程
-                <br/>1.使用应用配置的AesKey秘钥进行state 参数的加密 state_mi = AES.encrypt(state_ming,AesKey)
-                <br/>2.将加密后的数据进行Base64编码 state_base64 = Base64.encode(state_mi)
-                <br/>3.将Base64编码后的数据进行URL编码 state = UrlEncoder.encode(state_base64,"UTF-8");
-                                       
-                <br/>应用对state参数的解密过程
-                <br/>1.应用将接收到的数据进行Url解码，state_base64 = UrlDecoder.decode(state,"UTF-8")
-                <br/>2.应用将解码后到的数据进行Base64解码 state_mi = Base64.decode(state_base64)
-                <br/>3.应用使用应用配置的AesKey秘钥进行数据的解密 state = AES.decrypt(state_mi,AesKey)
-                                       */
-            runLog.log("state:"+state);
-            string state_base64 = HttpUtility.UrlDecode(state,Encoding.UTF8);
-            state_base64 = state_base64.Replace(" ", "+");
-            runLog.log("state_base64:" + state);
-            byte[] bState = Convert.FromBase64String(state);
-            string state_mi= UTF8Encoding.UTF8.GetString(bState);
-            runLog.log("MI_" + state_mi);
-            // string state_nomi = AES.AESDecrypt(state_mi);
+            state = state.Replace(" ", "+");
+            var json = Decrypt(state, _key);
+            var entity = Newtonsoft.Json.JsonConvert.DeserializeObject<DingDongOpenRequest>(json);
+            Database db = new Database("Db");
+            db.BeginTransaction();
+            string sqlCheck = string.Format("Select count(0) from DingDongCall_User where DingDongUserId='{0}'", entity.userid);
+            var first = db.ExecuteScalar<int>(sqlCheck);
+            string sqlUserToDo = string.Empty;
+            if (first == 0)
+            {
+                //新增
+                sqlUserToDo = string.Format("Insert into DingDongCall_User (DingDongUserId,Inputtime,status) values ('{0}',getdate(),'{1}')", entity.userid, entity.operation);
+            }
+            else
+            {
+                sqlUserToDo = string.Format("Update DingDongCall_User set status='{0}',InputTime=getdate() where DingDongUserId='{1}'", entity.operation, entity.userid);
+            }
+            try
+            {
 
-
-            // var req = Newtonsoft.Json.JsonConvert.DeserializeObject<StateEntity>(state_nomi);
-
-
-            //if (req.operation == "open")
-            //{
-
-            //}
-            //else
-            //{
-
-            //}
-            return Content("0");
+                db.Execute(sqlUserToDo);
+                db.CompleteTransaction();
+                return Content("0");
+            }
+            catch (Exception e)
+            {
+                db.AbortTransaction();
+                return Content("1");
+            }
         }
     }
 }

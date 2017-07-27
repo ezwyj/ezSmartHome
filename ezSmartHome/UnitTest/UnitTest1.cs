@@ -13,11 +13,9 @@ namespace UnitTest
         [TestMethod]
         public void TestMethod1()
         {
-            string state = @"DdWUvBeMrS7g6md5U667nTtGcSXgCwe6l4b/UC3FF4t/Mna6lWN5CIk7xS0EdN2pyFOBtX9iJ377+tfNemOq+fAk29dqfN3GPb89/jK6zY3rhdGyfV+AbymTZzQ4xmXENRcnaffv05dvYp+0IKua/zgRof2UzlZWSgFBJvo0Rys=";
-                    string key = "06000506080a070404080d0307080d0c0e040a090305050a05050c080200070c0a080b04060b0d02080a0b0605080e0e0b04080e030c00010a0a01030d0e0104";
-
-            var _key = GetMd5(key);
-            _key = Convert.FromBase64String(@"uw4FGrtauRGbh2ukh2ZFAA ==");
+            string state = @"DdWUvBeMrS7g6md5U667nWtJLbsPC6uddnHTrLyg32FAWH1TcUl6qm1AvhgZtlpe2/sa6ouvMzuSCK9bEaVWTtCHd9UY9qSG81EKkaNM+HbvLT6vks0w/84PvGQ5VHI8NRcnaffv05dvYp+0IKua/zgRof2UzlZWSgFBJvo0Rys=";
+            var _key = Convert.FromBase64String(@"uw4FGrtauRGbh2ukh2ZFAA ==");
+            
             var r = Decrypt(state, _key);
 
 
@@ -42,7 +40,7 @@ namespace UnitTest
             RijndaelManaged rDel = new RijndaelManaged();
             rDel.Key = keyArray;
             rDel.Mode = CipherMode.ECB;
-            rDel.Padding = PaddingMode.Zeros;
+            rDel.Padding = PaddingMode.PKCS7;
             ICryptoTransform cTransform = rDel.CreateDecryptor();
 
             byte[] resultArray = cTransform.TransformFinalBlock(inputBuffer, 0, inputBuffer.Length);
