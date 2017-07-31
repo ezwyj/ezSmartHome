@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="~/assets/css/tlayer.css">
     <link rel="stylesheet" href="~/assets/css/common.css">
     @RenderSection("styles", false)
-    <link rel="stylesheet" href="~/assets/css/site.css">
+    <link rel="stylesheet" href="~/assets/css/weui.min.css">
     <!--[if lt IE 9]>
         <script src="~/assets/js/lib/html5shiv.min.js"></script>
         <script src="~/assets/js/lib/respond.min.js"></script>
@@ -21,22 +21,15 @@
             rootUrl: '@Url.Content("~/")',
         };
     </script>
-    <script src="~/assets/js/lib/require.min.js"></script>
-    <script src="~/assets/js/config.js"></script>
-</head>
-<body ng-controller="pageCtrl">
-    <!--头部-->
-    <div class="header" id="header">
-        
-    </div>
-    <!--内容-->
-    <div class="main" id="main">
-        @RenderBody()
-    </div>
-    <!--脚部-->
-    <div class="footer" id="footer">
-        <p class="text-center"> </p>
-    </div>
     @RenderSection("scripts", false)
+    
+</head>
+<body>
+
+    @RenderBody()
+    <script src="~/assets/js/lib/require.min.js"></script>
+    <script src="~/assets/js/main.js"></script>
+    
 </body>
 </html>
+

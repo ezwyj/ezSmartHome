@@ -6,7 +6,7 @@ define('common', ['jquery',  'util'], function ($,  util) {
     $('#menu-' + OP_CONFIG.module + '-' + OP_CONFIG.page).addClass('active');
 
     //设置弹出框图片路径
-    $.tlayer('global', { imgPath: OP_CONFIG.rootUrl + 'assets/img/', theme: 'blue' });
+    //$.tlayer('global', { imgPath: OP_CONFIG.rootUrl + 'assets/img/', theme: 'blue' });
 
 
     //禁用ajax缓存

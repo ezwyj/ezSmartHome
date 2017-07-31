@@ -3,90 +3,26 @@
     ViewBag.Title = "配置信息";
 }
 
-<div>
-    <div class="row margin-bottom">
-        <div class="col-md-12">
-            <div class="item item-sm">
-                <label class="item-name required">电话</label>
-                <div class="item-control">
-                    <input type="text" class="form-control input-sm"  maxlength="3" id="phone">
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="row margin-bottom">
-        <div class="col-md-12">
-            <div class="item item-sm">
-                <button class="btn btn-sm btn-primary" id="sure">
-                    <span class="fa fa-plus"></span>
-                    <span>确定</span>
-                </button>
+<div class="weui-cells weui-cells_form">
 
-            </div>
+    <div class="weui-cell weui-cell_vcode">
+        <div class="weui-cell__hd">
+            <label class="weui-label">手机号</label>
         </div>
-    </div>
+        <div class="weui-cell__bd">
+            <input class="weui-input" type="tel" placeholder="请输入手机号" id="phone" />
+        </div>
 
+    </div>
+    <div class="weui-btn-area">
+        <a class="weui-btn weui-btn_primary" id="ok">确定</a>
+    </div>
 </div>
+
 
 @section scripts {
     <script type="text/javascript" >
-        require(['common', 'util', 'template', 'plugins', 'uploadify', 'datepicker', 'bootstrap'], function ($, util, template) {
-            var rootUrl = OP_CONFIG.rootUrl;
-            
-
-           
-
-           
-            $('#submit_back').on('click', function () {
-
-
-
-                $.content({
-                    theme: 'blue',
-                    header: '提交',
-                    content: {
-                        html: '<textarea class="form-control" style="height: 100px;"  ID="cycbj"></textarea>' + cycCommon
-                    },
-                    footer: [{
-                        text: '确定',
-                        style: 'primary',
-                        callback: function () {
-
-
-                            var remark = $('#cycbj', this).val();
-
-                            if (remark == '') {
-                                $.tips('提交意见不能为空！', 0);
-                                return false;
-                            }
-                            $.tlayer('close');
-                            $.loading('提交中，请稍后...');
-                            $.post(rootUrl + 'NPI/ReturnApproveToLast', {
-                                instanceId: instanceId,
-                                remark: remark
-                            }, function (res) {
-                                $.tlayer('close');
-                                if (res.state) {
-                                    $.tips('驳回成功！', 3, function () {
-                                        window.location = rootUrl + 'npi/ApproveList';
-                                    });
-                                } else {
-                                    $.tips(res.msg, 0);
-                                }
-                            });
-                        }
-                    }, {
-                        text: '取消'
-                    }],
-                    onInit: function () {
-                        $('[name="cyc"]', this).on('change', function () {
-                            var cyc = $(this).find("option:selected").text();
-                            $('#cycbj').val('').val(cyc);
-                        })
-                    }
-                });
-            });
-
-        })
+        OP_CONFIG.module = 'home';
+        OP_CONFIG.page = 'userProfile';
     </script>
 }
