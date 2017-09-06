@@ -9,7 +9,8 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Web;
 using System.Web.Mvc;
-
+using uPLibrary.Networking.M2Mqtt;
+using uPLibrary.Networking.M2Mqtt.Messages;
 
 namespace WebService.Controllers
 {
@@ -34,6 +35,7 @@ namespace WebService.Controllers
             return postStr;
         }
         static FileLog runLog = new FileLog(AppDomain.CurrentDomain.BaseDirectory + @"/log/runLog.txt");
+        MqttClient mqttClient = new MqttClient("message.deviceiot.top", 61613, false, MqttSslProtocols.None, null, null);
         [HttpPost]
         public JsonResult Post( )
         {
@@ -47,18 +49,20 @@ namespace WebService.Controllers
             toDingDongServer.sequence = reqObj.sequence;
             toDingDongServer.timestamp = (DateTime.Now.ToUniversalTime().Ticks - 621355968000000000) / 10000;
             toDingDongServer.directive = new Directive();
-
+            string clientId = "Server_" + Guid.NewGuid().ToString();
+            mqttClient.Connect(clientId, "admin", "passwordpassword");//, client.BaiDuYunName, client.BaiDuYunPwd
             if (reqObj.session.attributes.ToString().IndexOf("大灯")>1)
             {
 
+                mqttClient.Publish("wyj", Encoding.UTF8.GetBytes("0"), MqttMsgBase.QOS_LEVEL_AT_MOST_ONCE, false);
             }
             if (reqObj.session.attributes.ToString().IndexOf("餐灯") > 1)
             {
-
+                mqttClient.Publish("wyj", Encoding.UTF8.GetBytes("0"), MqttMsgBase.QOS_LEVEL_AT_MOST_ONCE, false);
             }
             if (reqObj.session.attributes.ToString().IndexOf("落地灯") > 1)
             {
-
+                mqttClient.Publish("wyj", Encoding.UTF8.GetBytes("0"), MqttMsgBase.QOS_LEVEL_AT_MOST_ONCE, false);
             }
 
 
