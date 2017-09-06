@@ -1,4 +1,5 @@
 ﻿
+using Newtonsoft.Json;
 using PetaPoco;
 using System;
 using System.Collections.Generic;
@@ -36,11 +37,41 @@ namespace WebService.Controllers
         [HttpPost]
         public JsonResult Post( )
         {
-            //var json =GetJsonString();
-            //var obj  = Newtonsoft.Json.JsonConvert.DeserializeObject<DingDongRequest>(json);
+            var json =GetJsonString();
+            var reqObj = Newtonsoft.Json.JsonConvert.DeserializeObject<DingDongRequest>(json);
 
 
-            return new JsonResult { Data = "OK"  };
+            var toDingDongServer = new DingDongResponse();
+            toDingDongServer.versionid = "1.0";
+            toDingDongServer.is_end = true;
+            toDingDongServer.sequence = reqObj.sequence;
+            toDingDongServer.timestamp = (DateTime.Now.ToUniversalTime().Ticks - 621355968000000000) / 10000;
+            toDingDongServer.directive = new Directive();
+
+            if (reqObj.session.attributes.ToString().IndexOf("大灯")>1)
+            {
+
+            }
+            if (reqObj.session.attributes.ToString().IndexOf("餐灯") > 1)
+            {
+
+            }
+            if (reqObj.session.attributes.ToString().IndexOf("落地灯") > 1)
+            {
+
+            }
+
+
+
+            Directive_items item = new Directive_items();
+                item.content = "已启动指令";
+                item.type = "1";
+                toDingDongServer.directive = new Directive();
+                toDingDongServer.directive.directive_items = new List<Directive_items>();
+                toDingDongServer.directive.directive_items.Add(item);
+
+
+            return  Json(toDingDongServer,JsonRequestBehavior.AllowGet);
         }
 
         
